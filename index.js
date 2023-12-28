@@ -19,9 +19,17 @@ const client = new MongoClient(uri, {
 const run = async () => {
   try {
     await client.connect();
-    const db = client.db("BOOK-CATALOG");
+    const db = client.db("books-catalog");
     const booksCollection = db.collection("books");
     console.log("successfully connected to MongoDB!");
+
+    app.get("/books", async (req, res) => {
+      const cursor = booksCollection.find({});
+      const books = await cursor.toArray();
+      //console.log(books);
+
+      res.send({ status: true, data: books });
+    });
   } finally {
   }
 };
