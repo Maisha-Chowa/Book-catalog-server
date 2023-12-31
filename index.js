@@ -25,10 +25,54 @@ const run = async () => {
 
     app.get("/books", async (req, res) => {
       const cursor = booksCollection.find({});
-      const books = await cursor.toArray();
-      //console.log(books);
+      const book = await cursor.toArray();
+      res.send({ status: true, data: book });
+    });
+    app.get("/books/:id", async (req, res) => {
+      id = req.params.id;
+      console.log(id);
+      const result = await booksCollection.findOne({ _id: ObjectId(id) });
+      console.log(result);
+      res.send(result);
+    });
 
-      res.send({ status: true, data: books });
+    app.post("/review/:id", async (req, res) => {
+      const id = req.params.id;
+      const review = req.body.review;
+
+      console.log(id);
+      console.log(review);
+
+      const result = await booksCollection.updateOne(
+        { _id: ObjectId(id) },
+        { $push: { reviews: review } }
+      );
+
+      console.log(result);
+
+      if (result.modifiedCount !== 1) {
+        console.error("Book not found or review not added");
+        res.json({ error: "Book not found or review not added" });
+        return;
+      }
+
+      console.log("Review added successfully");
+      res.json({ message: "Review added successfully" });
+    });
+
+    app.get("/review/:id", async (req, res) => {
+      const id = req.params.id;
+
+      const result = await booksCollection.findOne(
+        { _id: ObjectId(id) },
+        { projection: { _id: 0, reviews: 1 } }
+      );
+
+      if (result) {
+        res.json(result);
+      } else {
+        res.status(404).json({ error: " not found" });
+      }
     });
   } finally {
   }
