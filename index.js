@@ -35,21 +35,23 @@ const run = async () => {
       console.log(result);
       res.send(result);
     });
+    app.post("/add-new-book", async (req, res) => {
+      const book = req.body;
+      console.log(book);
+      const result = await booksCollection.insertOne(book);
+      res.send(result);
+    });
 
     app.post("/review/:id", async (req, res) => {
       const id = req.params.id;
       const review = req.body.review;
-
       console.log(id);
       console.log(review);
-
       const result = await booksCollection.updateOne(
         { _id: ObjectId(id) },
         { $push: { reviews: review } }
       );
-
       console.log(result);
-
       if (result.modifiedCount !== 1) {
         console.error("Book not found or review not added");
         res.json({ error: "Book not found or review not added" });
